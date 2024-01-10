@@ -1,6 +1,7 @@
 //! [![v](https://img.shields.io/badge/v-0.1.0-blueviolet)]()
 //!
-//! # This is a simple set of functions to ease your life while working with defaults in serde
+//! # Overview
+//! This is a simple set of functions to make your life easier while working with defaults in serde.
 //! Heavily inspired by discussions on issues about serde defaults, but mostly [this one](https://github.com/serde-rs/serde/issues/368)
 //!
 //! # Example
