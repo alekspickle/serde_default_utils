@@ -4,11 +4,15 @@
 //! This is a simple set of functions to make your life easier while working with defaults in serde.
 //! Heavily inspired by discussions on issues about serde defaults, but mostly [this one](https://github.com/serde-rs/serde/issues/368)
 //!
+//! # Kudos
+//! This is just a @JohnTheCoolingFan's proposed solution but available as crate and a macro that
+//! helps to generate another const generic function for any const generic type.
+//!
 //! # Example
 //! ```rust
 //!     use serde_default_utils::*;
 //!     use serde::{Deserialize, Serialize};
-//!     
+//!
 //!     const JSON: &str = r#"{"yes_or_no":false,"max":60,"delta":-77}"#;
 //!     const EMPTY_JSON: &str = r#"{}"#;
 //!     const MAX: u32 = 7;
@@ -23,7 +27,7 @@
 //!         #[serde(default = "default_u32::<MAX>")]
 //!         max: u32,
 //!     }
-//!     
+//!
 //!     fn main() {
 //!         // existing json fields are not changed
 //!         let config: Config = serde_json::from_str(JSON).unwrap();
