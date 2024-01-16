@@ -1,6 +1,6 @@
 # serde_default_utils
 
-[![v](https://img.shields.io/badge/v-0.2.0-blueviolet)]()
+[![v](https://img.shields.io/badge/v-0.2.1-blueviolet)]()
 
 ## Overview
 This is a simple set of functions to make your life easier while working with defaults in serde.
@@ -16,9 +16,11 @@ helps to generate another const generic function for any const generic type.
     use serde_default_utils::*;
     use serde::{Deserialize, Serialize};
 
-    const JSON: &str = r#"{"yes_or_no":false,"max":60,"delta":-77,"delimeter":"☀"}"#;
+    const JSON: &str = r#"{"yes_or_no":false,"max":60,"delta":-77,"delimeter":"☀","motto":"You matter"}"#;
     const EMPTY_JSON: &str = r#"{}"#;
     const MAX: u32 = 7;
+
+    serde_default!(motto, "You matter");
 
     #[derive(Serialize, Deserialize, Default)]
     struct Config {
@@ -31,21 +33,23 @@ helps to generate another const generic function for any const generic type.
         max: u32,
         #[serde(default = "default_char::<'☀'>")]
         delimeter: char,
+        #[serde(default = "default_motto")]
+        motto: &'static str,
     }
 
     fn main() {
         // existing json fields are not changed
         let config: Config = serde_json::from_str(JSON).unwrap();
         let s = serde_json::to_string(&config).unwrap();
-        assert_eq!(r#"{"yes_or_no":false,"delta":-77,"max":60,"delimeter":"☀"}"#, &s);
+        assert_eq!(r#"{"yes_or_no":false,"delta":-77,"max":60,"delimeter":"☀","motto":"You matter"}"#, &s);
         // if the field is not present - it is substituted with defaults
         let config: Config = serde_json::from_str(EMPTY_JSON).unwrap();
         let s = serde_json::to_string(&config).unwrap();
-        assert_eq!(r#"{"yes_or_no":true,"delta":-3,"max":7,"delimeter":"☀"}"#, &s);
+        assert_eq!(r#"{"yes_or_no":true,"delta":-3,"max":7,"delimeter":"☀","motto":"You matter"}"#, &s);
         // the default impl is just calling underlying type defaults unless you have a custom impl Default
         let config = Config::default();
         let s = serde_json::to_string(&config).unwrap();
-        assert_eq!(r#"{"yes_or_no":false,"delta":0,"max":0,"delimeter":"\u0000"}"#, &s);
+        assert_eq!(r#"{"yes_or_no":false,"delta":0,"max":0,"delimeter":"\u0000","motto":""}"#, &s);
     }
 
 ```
