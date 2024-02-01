@@ -1,7 +1,7 @@
 [package]
 name = "serde_default_utils"
 authors = ["Oleks Pickle <oleks.pickle@gmail.com>"]
-version = "0.2.1"
+version = "0.2.2"
 edition = "2021"
 categories = ["encoding", "no-std", "no-std::no-alloc"]
 description = "A set of simple helper functions to cut corners with serde_default"
