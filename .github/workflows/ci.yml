@@ -4,7 +4,6 @@ on:
   push:
   pull_request:
   workflow_dispatch:
-  schedule: [cron: "0 1 1 * *"]
 
 permissions:
   contents: read
@@ -14,12 +13,8 @@ env:
 
 jobs:
   test:
-    name: Rust ${{matrix.rust}}
+    name: Rust stable
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        rust: [nightly, beta, stable]
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v3

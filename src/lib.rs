@@ -41,6 +41,8 @@
 //!
 //! ```
 
+#![cfg_attr(not(feature = "std"), no_std)]
+
 #[macro_export]
 macro_rules! serde_default {
     ($kind:ty) => {
