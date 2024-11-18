@@ -1,5 +1,6 @@
 [package]
 name = "serde_default_utils"
+version = "0.3.1"
 authors = ["Oleks Pickle <22867443+olekspickle@users.noreply.github.com>"]
 edition = "2021"
 categories = ["encoding", "no-std", "no-std::no-alloc"]
