@@ -1,13 +1,16 @@
 [package]
 name = "serde_default_utils"
 authors = ["Oleks Pickle <22867443+olekspickle@users.noreply.github.com>"]
-version = "0.1.0"
 edition = "2021"
 categories = ["encoding", "no-std", "no-std::no-alloc"]
 description = "A set of simple helper functions to cut corners with serde_default"
 keywords = ["serde", "serialization", "no_std"]
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/alekspickle/serde_default_utils"
+
+[features]
+default = ["std"]
+std = []
 
 [dependencies]
 paste = "1.0.14"
@@ -16,4 +19,4 @@ paste = "1.0.14"
 expect-test = "1.4.1"
 serde = { version = "1.0.195", features = ["derive"] }
 serde_json = "1.0.111"
-
+serde_default_utils = { path = ".", features = ["std"] }
