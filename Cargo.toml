@@ -9,9 +9,9 @@ license = "MIT OR Apache-2.0"
 repository = "https://github.com/alekspickle/serde_default_utils"
 
 [features]
-default = ["std", "inline-derive"]
+default = ["std"]
 std = []
-inline-derive = ["serde-inline-default"]
+inline = ["serde-inline-default"]
 
 [dependencies]
 paste = "1.0.14"

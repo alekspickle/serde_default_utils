@@ -1,4 +1,4 @@
-//! [![v](https://img.shields.io/badge/v-0.2.1-blueviolet)]()
+//! [![v](https://img.shields.io/badge/v-0.2.2-blueviolet)]()
 //!
 //! # Overview
 //! This is a simple set of functions to make your life easier while working with defaults in serde.
@@ -7,9 +7,9 @@
 //!
 //! # Kudos
 //! - JohnTheCoolingFan posted this solution, I just made it available as crate and a macro that
-//! helps to generate another const generic function for any const generic type.
+//!     helps to generate another const generic function for any const generic type.
 //! - bytedream         made a more powerful version of it, and although I still see const generic approach as more readable,
-//! I have to admit that for strings it's superior, hence - included under the feature
+//!     I have to admit that for strings it's superior, hence - included under the feature
 //!
 //!
 //! # Example
@@ -34,8 +34,6 @@
 //!     const EMPTY_JSON: &str = r#"{}"#;
 //!     const MAX: u32 = 7;
 //!
-//!     serde_default!(motto, "You matter");
-//!
 //!     #[derive(Serialize, Deserialize, Default)]
 //!     struct Config {
 //!         #[serde(default = "default_bool::<true>")]
@@ -47,8 +45,6 @@
 //!         max: u32,
 //!         #[serde(default = "default_char::<'☀'>")]
 //!         delimeter: char,
-//!         #[serde(default = "default_motto")]
-//!         motto: &'static str,
 //!     }
 //!
 //!     #[cfg(feature = "inline")]
@@ -57,8 +53,8 @@
 //!     struct InlineConfig {
 //!         #[serde_inline_default("You matter even more".to_string())]
 //!         inline_motto: String,
-//!         #[serde_inline_default(vec!["You", "matter", "even", "more"])]
-//!         slice: Vec<&'static str>,
+//!         #[serde_inline_default(vec!["You".into(), "matter".into(), "even".into(), "more".into()])]
+//!         slice: Vec<String>,
 //!         #[serde_inline_default(vec![98712, 12346, 129389, 102937])]
 //!         slice_u64: Vec<u64>,
 //!     }
@@ -67,16 +63,16 @@
 //!         // existing json fields are not changed
 //!         let config: Config = serde_json::from_str(JSON).unwrap();
 //!         let s = serde_json::to_string(&config).unwrap();
-//!         assert_eq!(r#"{"yes_or_no":false,"delta":-77,"max":60,"delimeter":"☀","motto":"I matter"}"#, &s);
+//!         assert_eq!(r#"{"yes_or_no":false,"delta":-77,"max":60,"delimeter":"☀"}"#, &s);
 //!         // if the field is not present - it is substituted with defaults
 //!         let config: Config = serde_json::from_str(EMPTY_JSON).unwrap();
 //!         let s = serde_json::to_string(&config).unwrap();
-//!         assert_eq!(r#"{"yes_or_no":true,"delta":-3,"max":7,"delimeter":"☀","motto":"You matter"}"#, &s);
+//!         assert_eq!(r#"{"yes_or_no":true,"delta":-3,"max":7,"delimeter":"☀"}"#, &s);
 //!         // the default impl is just calling underlying type defaults unless you have a custom impl Default
 //!         let config = Config::default();
 //!         let s = serde_json::to_string(&config).unwrap();
-//!         assert_eq!(r#"{"yes_or_no":false,"delta":0,"max":0,"delimeter":"\u0000","motto":""}"#, &s);
-//!         
+//!         assert_eq!(r#"{"yes_or_no":false,"delta":0,"max":0,"delimeter":"\u0000"}"#, &s);
+//!
 //!         // Inline
 //!         #[cfg(feature = "inline")]
 //!         {
@@ -89,7 +85,7 @@
 //!         let s = serde_json::to_string(&config).unwrap();
 //!         assert_eq!(r#"{"inline_motto":"You matter even more","slice":["You","matter","even","more"],"slice_u64":[98712,12346,129389,102937]}"#, &s);
 //!         // the default impl is just calling underlying type defaults unless you have a custom impl Default
-//!         let config = Config::default();
+//!         let config = InlineConfig::default();
 //!         let s = serde_json::to_string(&config).unwrap();
 //!         assert_eq!(r#"{"inline_motto":"","slice":[],"slice_u64":[]}"#, &s);
 //!         }
@@ -98,7 +94,7 @@
 //! ```
 #![cfg_attr(not(feature = "std"), no_std)]
 
-#[cfg(feature = "inline-derive")]
+#[cfg(feature = "inline")]
 pub use serde_inline_default::serde_inline_default;
 
 /// Generates a function for a type provided or a custom default function
@@ -184,10 +180,11 @@ mod tests {
     use super::*;
     use expect_test::expect;
     use serde::{Deserialize, Serialize};
+    #[cfg(feature = "inline")]
+    use serde_inline_default::serde_inline_default;
 
     serde_default!(hey, "You matter");
 
-    #[serde_inline_default]
     #[derive(Serialize, Deserialize, Default)]
     struct Config {
         #[serde(default = "default_bool::<true>")]
@@ -200,10 +197,16 @@ mod tests {
         delimeter: char,
         #[serde(default = "default_hey")]
         motto: &'static str,
+    }
+
+    #[cfg(feature = "inline")]
+    #[serde_inline_default]
+    #[derive(Serialize, Deserialize, Default)]
+    struct InlineConfig {
         #[serde_inline_default("You matter even more".to_string())]
         inline_motto: String,
-        #[serde_inline_default(vec!["You", "matter", "even", "more"])]
-        slice: Vec<&'static str>,
+        #[serde_inline_default(vec!["You".into(), "matter".into(), "even".into(), "more".into()])]
+        slice: Vec<String>,
         #[serde_inline_default(vec![98712, 12346, 129389, 102937])]
         slice_u64: Vec<u64>,
     }
@@ -213,7 +216,10 @@ mod tests {
             "max":60,
             "delta":-77,
             "delimeter":"☀",
-            "motto":"I matter",
+            "motto":"I matter"
+        }"#;
+    #[cfg(feature = "inline")]
+    const INLINE_JSON: &str = r#"{
             "inline_motto":"I matter even more",
             "slice":["I", "matter", "even", "more"],
             "slice_u64":[9000, 8000, 10000, 7000]
@@ -224,15 +230,32 @@ mod tests {
     fn deserialization_works() {
         let config: Config = serde_json::from_str(JSON).unwrap();
         let s = serde_json::to_string(&config).unwrap();
-        expect![[r#"{"yes_or_no":false,"delta":-77,"max":60,"delimeter":"☀","motto":"I matter","inline_motto":"I matter even more","slice":["I","matter","even","more"],"slice_u64":[9000,8000,10000,7000]}"#]]
-        .assert_eq(&s);
+        expect![[r#"{"yes_or_no":false,"delta":-77,"max":60,"delimeter":"☀","motto":"I matter"}"#]]
+            .assert_eq(&s);
         let config: Config = serde_json::from_str(EMPTY_JSON).unwrap();
         let s = serde_json::to_string(&config).unwrap();
-        expect![[r#"{"yes_or_no":true,"delta":-3,"max":7,"delimeter":"☀","motto":"You matter","inline_motto":"You matter even more","slice":["You","matter","even","more"],"slice_u64":[98712,12346,129389,102937]}"#]]
+        expect![[r#"{"yes_or_no":true,"delta":-3,"max":7,"delimeter":"☀","motto":"You matter"}"#]]
             .assert_eq(&s);
         let config = Config::default();
         let s = serde_json::to_string(&config).unwrap();
-        expect![[r#"{"yes_or_no":false,"delta":0,"max":0,"delimeter":"\u0000","motto":"","inline_motto":"","slice":[],"slice_u64":[]}"#]]
+        expect![[r#"{"yes_or_no":false,"delta":0,"max":0,"delimeter":"\u0000","motto":""}"#]]
             .assert_eq(&s);
+
+        #[cfg(feature = "inline")]
+        {
+            let config: InlineConfig = serde_json::from_str(INLINE_JSON).unwrap();
+            let s = serde_json::to_string(&config).unwrap();
+            expect![[r#"{"inline_motto":"I matter even more","slice":["I","matter","even","more"],"slice_u64":[9000,8000,10000,7000]}"#]]
+        .assert_eq(&s);
+            let config: InlineConfig = serde_json::from_str(EMPTY_JSON).unwrap();
+            let s = serde_json::to_string(&config).unwrap();
+            expect![[
+                r#"{"inline_motto":"You matter even more","slice":["You","matter","even","more"],"slice_u64":[98712,12346,129389,102937]}"#
+            ]].assert_eq(&s);
+
+            let config = InlineConfig::default();
+            let s = serde_json::to_string(&config).unwrap();
+            expect![[r#"{"inline_motto":"","slice":[],"slice_u64":[]}"#]].assert_eq(&s);
+        }
     }
 }
