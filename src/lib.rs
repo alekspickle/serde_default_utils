@@ -1,4 +1,4 @@
-//! [![v](https://img.shields.io/badge/v-0.2.0-blueviolet)]()
+//! [![v](https://img.shields.io/badge/v-0.2.1-blueviolet)]()
 //!
 //! # Overview
 //! This is a simple set of functions to make your life easier while working with defaults in serde.
