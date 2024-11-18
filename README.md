@@ -1,6 +1,6 @@
 # serde_default_utils
 
-[![v](https://img.shields.io/badge/v-0.2.2-blueviolet)]()
+[![v](https://img.shields.io/badge/v-0.3.0-blueviolet)]()
 
 ## Overview
 This is a simple set of functions to make your life easier while working with defaults in serde.
