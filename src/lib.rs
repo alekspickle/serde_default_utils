@@ -14,9 +14,11 @@
 //!     use serde_default_utils::*;
 //!     use serde::{Deserialize, Serialize};
 //!
-//!     const JSON: &str = r#"{"yes_or_no":false,"max":60,"delta":-77,"delimeter":"☀"}"#;
+//!     const JSON: &str = r#"{"yes_or_no":false,"max":60,"delta":-77,"delimeter":"☀","motto":"You matter"}"#;
 //!     const EMPTY_JSON: &str = r#"{}"#;
 //!     const MAX: u32 = 7;
+//!
+//!     serde_default!(motto, "You matter");
 //!
 //!     #[derive(Serialize, Deserialize, Default)]
 //!     struct Config {
@@ -29,21 +31,23 @@
 //!         max: u32,
 //!         #[serde(default = "default_char::<'☀'>")]
 //!         delimeter: char,
+//!         #[serde(default = "default_motto")]
+//!         motto: &'static str,
 //!     }
 //!
 //!     fn main() {
 //!         // existing json fields are not changed
 //!         let config: Config = serde_json::from_str(JSON).unwrap();
 //!         let s = serde_json::to_string(&config).unwrap();
-//!         assert_eq!(r#"{"yes_or_no":false,"delta":-77,"max":60,"delimeter":"☀"}"#, &s);
+//!         assert_eq!(r#"{"yes_or_no":false,"delta":-77,"max":60,"delimeter":"☀","motto":"You matter"}"#, &s);
 //!         // if the field is not present - it is substituted with defaults
 //!         let config: Config = serde_json::from_str(EMPTY_JSON).unwrap();
 //!         let s = serde_json::to_string(&config).unwrap();
-//!         assert_eq!(r#"{"yes_or_no":true,"delta":-3,"max":7,"delimeter":"☀"}"#, &s);
+//!         assert_eq!(r#"{"yes_or_no":true,"delta":-3,"max":7,"delimeter":"☀","motto":"You matter"}"#, &s);
 //!         // the default impl is just calling underlying type defaults unless you have a custom impl Default
 //!         let config = Config::default();
 //!         let s = serde_json::to_string(&config).unwrap();
-//!         assert_eq!(r#"{"yes_or_no":false,"delta":0,"max":0,"delimeter":"\u0000"}"#, &s);
+//!         assert_eq!(r#"{"yes_or_no":false,"delta":0,"max":0,"delimeter":"\u0000","motto":""}"#, &s);
 //!     }
 //!
 //! ```
@@ -68,15 +72,23 @@
 /// // }
 /// serde_default!(u8);
 ///
-/// // !Experimental!
 /// // Generates
-/// // pub const fn default_hey<const V: &'static u8>() -> &'static [u8] {
-/// //     &[1, 2, 3, 4]
+/// // pub const fn default_hey() -> &'static ::core::primitive::str {
+/// //     "hey"
 /// // }
-/// serde_default!(hey, &'static str, "hey");
+/// serde_default!(hey, "hey");
+///
+/// // !Experimental!
+/// // (not sure if it's even useful, but this allows you to store raw bytes)
+/// // Generates
+/// // pub const fn default_arr() -> &'static [::core::primitive::u8] {
+/// //     &[1,2,3,4,5]
+/// // }
+/// serde_default!(arr, &[1,2,3,4,5]);
 ///
 /// assert!(default_u8::<6>() == 6u8);
 /// assert_eq!(default_hey(), "hey");
+/// assert_eq!(default_arr(), &[1,2,3,4,5]);
 ///
 /// ```
 #[macro_export]
@@ -88,10 +100,17 @@ macro_rules! serde_default {
             }
         }
     };
-    ($name:ident,$ty:ty,$val:expr) => {
+    ($name:ident,$text:literal) => {
         ::paste::paste! {
-            pub const fn [<default_$name:lower>]() -> $ty {
-                $val
+            pub const fn [<default_$name:lower>]() -> &'static ::core::primitive::str {
+                $text
+            }
+        }
+    };
+    ($name:ident, &[ $($value:expr),* $(,)? ]) => {
+        ::paste::paste! {
+            pub const fn [<default_$name:lower>]() -> &'static [::core::primitive::u8] {
+                &[$($value,)*]
             }
         }
     };
@@ -118,6 +137,8 @@ mod tests {
     use expect_test::expect;
     use serde::{Deserialize, Serialize};
 
+    serde_default!(hey, "You matter");
+
     #[derive(Serialize, Deserialize, Default)]
     struct Config {
         #[serde(default = "default_bool::<true>")]
@@ -128,21 +149,29 @@ mod tests {
         max: u32,
         #[serde(default = "default_char::<'☀'>")]
         delimeter: char,
+        #[serde(default = "default_hey")]
+        motto: &'static str,
     }
 
-    const JSON: &str = r#"{"yes_or_no":false,"max":60,"delta":-77,"delimeter":"☀"}"#;
+    const JSON: &str =
+        r#"{"yes_or_no":false,"max":60,"delta":-77,"delimeter":"☀","motto":"You matter"}"#;
     const EMPTY_JSON: &str = r#"{}"#;
 
     #[test]
     fn deserialization_works() {
         let config: Config = serde_json::from_str(JSON).unwrap();
         let s = serde_json::to_string(&config).unwrap();
-        expect![[r#"{"yes_or_no":false,"delta":-77,"max":60,"delimeter":"☀"}"#]].assert_eq(&s);
+        expect![[
+            r#"{"yes_or_no":false,"delta":-77,"max":60,"delimeter":"☀","motto":"You matter"}"#
+        ]]
+        .assert_eq(&s);
         let config: Config = serde_json::from_str(EMPTY_JSON).unwrap();
         let s = serde_json::to_string(&config).unwrap();
-        expect![[r#"{"yes_or_no":true,"delta":-3,"max":7,"delimeter":"☀"}"#]].assert_eq(&s);
+        expect![[r#"{"yes_or_no":true,"delta":-3,"max":7,"delimeter":"☀","motto":"You matter"}"#]]
+            .assert_eq(&s);
         let config = Config::default();
         let s = serde_json::to_string(&config).unwrap();
-        expect![[r#"{"yes_or_no":false,"delta":0,"max":0,"delimeter":"\u0000"}"#]].assert_eq(&s);
+        expect![[r#"{"yes_or_no":false,"delta":0,"max":0,"delimeter":"\u0000","motto":""}"#]]
+            .assert_eq(&s);
     }
 }
