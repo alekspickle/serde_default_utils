@@ -6,7 +6,7 @@ categories = ["encoding", "no-std", "no-std::no-alloc"]
 description = "A set of simple helper functions to cut corners with serde_default"
 keywords = ["serde", "serialization", "no_std"]
 license = "MIT OR Apache-2.0"
-repository = "https://github.com/alekspickle/serde_default_utils"
+repository = "https://github.com/olekspickle/serde_default_utils"
 
 [features]
 default = ["std"]
