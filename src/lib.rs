@@ -7,9 +7,9 @@
 //!
 //! # Kudos
 //! - JohnTheCoolingFan posted this solution, I just made it available as crate and a macro that
-//!     helps to generate another const generic function for any const generic type.
+//!   helps to generate another const generic function for any const generic type.
 //! - bytedream         made a more powerful version of it, and although I still see const generic approach as more readable,
-//!     I have to admit that for strings it's superior, hence - included under the feature
+//!   I have to admit that for strings it's superior, hence - included under the feature
 //!
 //!
 //! # Example
