@@ -15,7 +15,7 @@ std = []
 inline = ["serde-inline-default"]
 
 [dependencies]
-paste = "1"
+pastey = "0.2"
 serde-inline-default = { version = "0.2", optional = true }
 
 [dev-dependencies]

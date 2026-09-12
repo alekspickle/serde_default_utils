@@ -138,21 +138,21 @@ pub use serde_inline_default::serde_inline_default;
 #[macro_export]
 macro_rules! serde_default {
     ($kind:ty) => {
-        ::paste::paste! {
+        ::pastey::paste! {
             pub const fn [<default_$kind:lower>]<const V: $kind>() -> $kind {
                 V
             }
         }
     };
     ($name:ident,$text:literal) => {
-        ::paste::paste! {
+        ::pastey::paste! {
             pub const fn [<default_$name:lower>]() -> &'static ::core::primitive::str {
                 $text
             }
         }
     };
     ($name:ident, &[ $($value:expr),* $(,)? ]) => {
-        ::paste::paste! {
+        ::pastey::paste! {
             pub const fn [<default_$name:lower>]() -> &'static [::core::primitive::u8] {
                 &[$($value,)*]
             }
